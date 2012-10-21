@@ -25,17 +25,6 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "stm32f4xx_conf.h"
-#include "compiler_support.h"
-
-
-// Place variable in one of the RAM blocks accessible via the AHB bus
-#define SRAM_112K  __attribute__ ((section(".sram112k")))
-#define SRAM_16K  __attribute__ ((section(".sram16k")))
-
-#define CORE_M0  (0)
-#define CORE_M3  (30)
-#define CORE_M4  (40)
 
 
 #define MIN(x, y) (((x) < (y))? (x) : (y))
