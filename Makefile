@@ -25,36 +25,6 @@ VPATH += $(STELLARIS_ROOT)/boards/$(BOARD)/drivers
 
 SOURCE = src/main.c
 SOURCE += src/startup.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/adc.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/can.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/comp.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/cpu.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/eeprom.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/epi.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/ethernet.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/fan.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/flash.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/fpu.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/gpio.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/hibernate.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/i2c.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/i2s.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/interrupt.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/lpc.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/mpu.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/peci.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/pwm.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/qei.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/ssi.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/sysctl.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/sysexc.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/systick.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/timer.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/uart.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/udma.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/usb.c
-SOURCE += $(STELLARIS_ROOT)/driverlib/watchdog.c
-
 
 #******************************************************************************
 
@@ -65,12 +35,12 @@ DEFINES = -Dgcc -DPART_$(PART) -DTARGET_IS_BLIZZARD_RA1
 DEFINES += -DSTACK_SIZE=256
 
 AFLAGS = -mthumb -mcpu=$(CORE) $(INCLUDES)
-CFLAGS = -mthumb -mcpu=$(CORE) -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fsingle-precision-constant
+CFLAGS = -mthumb -mcpu=$(CORE) -mfloat-abi=soft -mfpu=fpv4-sp-d16 -fsingle-precision-constant
 CFLAGS += -ffunction-sections -fdata-sections
 CFLAGS += -std=gnu99 -Wall -Wno-unused -g -Os
 CFLAGS += $(DEFINES) $(INCLUDES)
 
-LIBS = -lm -lc -lnosys 
+LIBS = -lm -lc -lnosys $(STELLARIS_ROOT)/driverlib/gcc-cm4f/libdriver-cm4f.a
 
 LDFLAGS = -mthumb -mcpu=$(CORE)
 LDFLAGS += -nodefaultlibs -nostartfiles
