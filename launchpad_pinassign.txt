@@ -1,14 +1,39 @@
 Template pin assignment file for Stellaris LaunchPad board
 
-         P1                  |                 P2
+     J1       J3             |             J4       J2
                              |
-   3.3V 01 02 VBUS           |            PF2 01 02 GND
-    PB5 03 04 GND            |            PF3 03 04 PB2
-    PB0 05 06 PD0            |            PB3 05 06 
-    PB1 07 08                |                07 08 
-    PE4 09 10                |                09 10 
-    PE5 11 12                |                11 12 
-    PB4 13 14                |                13 14 
-    PA5 15 16                |                15 16 
-    PA6 17 18                |                17 18 
-    PA7 19 20                |                19 20 
+   3.3V 01 02 VBUS           |         (*)PF2 01 02 GND
+    PB5 03 04 GND            |         (*)PF3 03 04 PB2
+    PB0 05 06 PD0(a)         |            PB3 05 06 PE0
+    PB1 07 08 PD1(b)         |            PC4 07 08 PF0
+    PE4 09 10 PD2            |            PC5 09 10 RESET
+    PE5 11 12 PD3            |            PC6 11 12 PB7(b)
+    PB4 13 14 PE1            |            PC7 13 14 PB6(a)
+    PA5 15 16 PE2            |            PD6 15 16 PA4
+    PA6 17 18 PE3            |            PD7 17 18 PA3
+    PA7 19 20 PF1(*)         |         (*)PF4 19 20 PA2
+
+*: pin used for on-board function
+a: PD0 and PB6 are connected by R9
+b: PD1 and PB7 are connected by R10
+
+Two pairs of pins are shorted via 0-ohm resistors: PD0-PB6 and PD1-PB7. Presumably to allow
+SSI2 to be used on the left wing or I2C3 on the right wing.
+R9 and R10 need to be removed to get full use of the pins. Conflicting functions:
+
+PB6  SSI2Rx T0CCP0
+PD0  AIN7 SSI3Clk SSI1Clk I2C3SCL WT2CCP0
+
+PB7  SSI2Tx T0CCP1
+PD1  AIN6 SSI3Fss SSI1Fss I2C3SDA WT2CCP1
+
+
+PD4 and PD5 are available near the processor USB connector, if the application doesn't use USB.
+
+PA0 and PA1 are available next to the JTAG header (UART 0 TXD/RXD).
+
+PF0: user switch 2
+PF1: red LED
+PF2: blue LED
+PF3: green LED
+PF4: user switch 1
