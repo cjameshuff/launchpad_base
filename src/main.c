@@ -5,43 +5,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "inc/hw_ints.h"
-#include "inc/hw_memmap.h"
-#include "inc/hw_types.h"
-
-#include "driverlib/debug.h"
-
-#include "driverlib/cpu.h"
-#include "driverlib/mpu.h"
-#include "driverlib/fpu.h"
-#include "driverlib/sysctl.h"
-#include "driverlib/interrupt.h"
-#include "driverlib/sysexc.h"
-#include "driverlib/udma.h"
-#include "driverlib/hibernate.h"
-
-#include "driverlib/eeprom.h"
-#include "driverlib/flash.h"
-#include "driverlib/rom.h"
-#include "driverlib/rom_map.h"
-
-#include "driverlib/systick.h"
-#include "driverlib/timer.h"
-#include "driverlib/watchdog.h"
-
-#include "driverlib/pin_map.h"
-#include "driverlib/adc.h"
-//#include "driverlib/comp.h"
-//#include "driverlib/pwm.h"
-//#include "driverlib/qei.h"
-#include "driverlib/gpio.h"
-//#include "driverlib/i2c.h"
-//#include "driverlib/i2s.h"
-//#include "driverlib/can.h"
-#include "driverlib/ssi.h"
-#include "driverlib/uart.h"
-//#include "driverlib/usb.h"
-
+#include "driverlib.h"
 
 #include "drivers/rgb.h"
 
@@ -62,17 +26,17 @@ __error__(char * filename, uint32_t line)
 //*****************************************************************************
 // UART interrupt handler.
 //*****************************************************************************
-void UARTIntHandler(void)
+void UART0_IntHandler(void)
 {
     uint32_t status = ROM_UARTIntStatus(UART0_BASE, true);
     ROM_UARTIntClear(UART0_BASE, status);
     
     while(ROM_UARTCharsAvail(UART0_BASE))
     {
-	// Just echo typed characters and trigger Rx LED
-	char ch = ROM_UARTCharGetNonBlocking(UART0_BASE);
-        ROM_UARTCharPutNonBlocking(UART0_BASE, ch);	
-	rx_led_ctr = 1;
+        // Just echo typed characters and trigger Rx LED
+        char ch = ROM_UARTCharGetNonBlocking(UART0_BASE);
+        ROM_UARTCharPutNonBlocking(UART0_BASE, ch);
+        rx_led_ctr = 1;
     }
 }
 
@@ -168,35 +132,35 @@ int main(void)
     static uint16_t heartbeat_ctr = 0;
     while(1)
     {
-	if(rx_led_ctr > 0)
-	{
-	    --rx_led_ctr;
-	    GPIOPinWrite(BLUE_GPIO_BASE, BLUE_GPIO_PIN, BLUE_GPIO_PIN);
-	}
-	else
-	{
-	    GPIOPinWrite(BLUE_GPIO_BASE, BLUE_GPIO_PIN, 0);
-	}
-	
-	// Blink heartbeat LED
-	if(heartbeat_ctr > 0)
-	{
-	    --heartbeat_ctr;
-	}
-	else
-	{
-	    if(GPIOPinRead(GREEN_GPIO_BASE, GREEN_GPIO_PIN))
-	    {
-		GPIOPinWrite(GREEN_GPIO_BASE, GREEN_GPIO_PIN, 0);
-		heartbeat_ctr = 200;
-	    }
-	    else
-	    {
-	        GPIOPinWrite(GREEN_GPIO_BASE, GREEN_GPIO_PIN, GREEN_GPIO_PIN);
-		heartbeat_ctr = 1;
-	    }
-	}
-	
+        if(rx_led_ctr > 0)
+        {
+            --rx_led_ctr;
+            GPIOPinWrite(BLUE_GPIO_BASE, BLUE_GPIO_PIN, BLUE_GPIO_PIN);
+        }
+        else
+        {
+            GPIOPinWrite(BLUE_GPIO_BASE, BLUE_GPIO_PIN, 0);
+        }
+        
+        // Blink heartbeat LED
+        if(heartbeat_ctr > 0)
+        {
+            --heartbeat_ctr;
+        }
+        else
+        {
+            if(GPIOPinRead(GREEN_GPIO_BASE, GREEN_GPIO_PIN))
+            {
+                GPIOPinWrite(GREEN_GPIO_BASE, GREEN_GPIO_PIN, 0);
+                heartbeat_ctr = 200;
+            }
+            else
+            {
+                GPIOPinWrite(GREEN_GPIO_BASE, GREEN_GPIO_PIN, GREEN_GPIO_PIN);
+                heartbeat_ctr = 1;
+            }
+        }
+        
         ROM_SysCtlDelay(ROM_SysCtlClockGet()/(1000*3));
     }
 }

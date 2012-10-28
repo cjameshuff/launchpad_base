@@ -5,6 +5,8 @@ MEMORY
     SRAM (rwx) : ORIGIN = 0x20000000, LENGTH = 32K
 }
 
+ENTRY(ResetISR)
+
 SECTIONS
 {
     .text :

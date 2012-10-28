@@ -1,11 +1,13 @@
 
 #******************************************************************************
+
 CC=arm-none-eabi-gcc
 LD=arm-none-eabi-gcc
 AR=arm-none-eabi-ar
 AS=arm-none-eabi-as
 CP=arm-none-eabi-objcopy
 OD=arm-none-eabi-objdump
+LM4FLASH=/embedded/lm4tools/lm4flash/lm4flash
 
 #******************************************************************************
 
@@ -24,7 +26,8 @@ VPATH += $(STELLARIS_ROOT)/utils
 VPATH += $(STELLARIS_ROOT)/boards/$(BOARD)/drivers
 
 SOURCE = src/main.c
-SOURCE += src/startup.c
+SOURCE += src/lm4f_reset.s
+SOURCE += src/lm4f_startup.c
 
 #******************************************************************************
 
@@ -101,7 +104,7 @@ disasm: $(DISASM)
 
 flash: $(EXECNAME).elf
 	$(CP) -O binary $(EXECNAME).elf $(EXECNAME).bin
-	/embedded/lm4tools/lm4flash $(EXECNAME).bin
+	$(LM4FLASH) -v $(EXECNAME).bin
 	#openocd ${OOCD_CFG} -c 'init' ${OOCD_RESET_HALT} ${OOCD_FLASH} ${OOCD_RESET} -c 'shutdown'
 
 obj/%.c.o: %.c
