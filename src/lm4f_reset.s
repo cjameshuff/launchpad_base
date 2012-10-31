@@ -8,7 +8,7 @@
 .fpu softvfp
 .thumb
 
-.word _etext  /* end of .text section (start of initialization data in flash) */
+.word _data_init  /* start of initialization data in flash */
 .word _data  /* start of .data section (data in RAM) */
 .word _edata  /* end of .data section (data in RAM) */
 .word _bss  /* start of .bss section */
@@ -24,7 +24,7 @@ ResetISR:
        and copy words until r0 >= r1, using r4 as a temporary register. */
     ldr r0, =_data
     ldr r1, =_edata
-    ldr r2, =_etext
+    ldr r2, =_data_init
     
 datainit_loop:
         cmp r0, r1

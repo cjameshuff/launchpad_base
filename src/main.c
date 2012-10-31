@@ -9,6 +9,7 @@
 
 #include "drivers/rgb.h"
 
+#include "debug_uart.h"
 
 volatile uint16_t rx_led_ctr = 0;
 
@@ -17,72 +18,12 @@ volatile uint16_t rx_led_ctr = 0;
 // The error routine that is called if the driver library encounters an error.
 //*****************************************************************************
 #ifdef DEBUG
-void
-__error__(char * filename, uint32_t line)
+void __error__(char * filename, uint32_t line)
 {
+    dbg_printf("%s@%d: driverlib error.\r\n", filename, line);
 }
 #endif
 
-//*****************************************************************************
-// UART interrupt handler.
-//*****************************************************************************
-void UART0_IntHandler(void)
-{
-    uint32_t status = ROM_UARTIntStatus(UART0_BASE, true);
-    ROM_UARTIntClear(UART0_BASE, status);
-    
-    while(ROM_UARTCharsAvail(UART0_BASE))
-    {
-        // Just echo typed characters and trigger Rx LED
-        char ch = ROM_UARTCharGetNonBlocking(UART0_BASE);
-        ROM_UARTCharPutNonBlocking(UART0_BASE, ch);
-        rx_led_ctr = 1;
-    }
-}
-
-//*****************************************************************************
-// Send a short string of bytes to the UART. There must be room in the FIFO for
-// the data.
-//*****************************************************************************
-void UART_SendNonblock(const uint8_t * bfr, uint32_t count)
-{
-    while(count--)
-        ROM_UARTCharPutNonBlocking(UART0_BASE, *bfr++);
-}
-
-//*****************************************************************************
-// Send a string of bytes to the UART, blocking if necessary.
-//*****************************************************************************
-void UART_Send(const uint8_t * bfr, uint32_t count)
-{
-    while(count--)
-        ROM_UARTCharPut(UART0_BASE, *bfr++);
-}
-
-//*****************************************************************************
-// Send a C string to the UART, blocking if necessary.
-//*****************************************************************************
-void UART_PutStr(const char * bfr)
-{
-    while(*bfr != '\0')
-        ROM_UARTCharPut(UART0_BASE, (uint8_t)*bfr++);
-}
-
-#define UART_CFG_8N1  (UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_NONE)
-void UART_Init(void)
-{
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
-    
-    GPIOPinConfigure(GPIO_PA0_U0RX);
-    GPIOPinConfigure(GPIO_PA1_U0TX);
-    ROM_GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
-    
-    ROM_UARTConfigSetExpClk(UART0_BASE, ROM_SysCtlClockGet(), 115200, UART_CFG_8N1);
-    
-    ROM_IntEnable(INT_UART0);
-    ROM_UARTIntEnable(UART0_BASE, UART_INT_RX | UART_INT_RT);
-}
 
 void Init_Sys(void)
 {
@@ -101,14 +42,13 @@ void Init_Sys(void)
     ROM_SysCtlClockSet(SYSCTL_SYSDIV_2_5 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN | SYSCTL_XTAL_16MHZ);
 }
 
-//*****************************************************************************
-// This example demonstrates how to send a string of data to the UART.
-//*****************************************************************************
+
+
 int main(void)
 {
     Init_Sys();
     ROM_IntMasterEnable();
-    UART_Init();
+    DBG_Init();
     
     ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
     ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
@@ -126,12 +66,20 @@ int main(void)
     GPIOPinWrite(BLUE_GPIO_BASE, BLUE_GPIO_PIN, 0);
     
     
-    
-    UART_PutStr("\033[2JReady:\r\n");
+//     dbg_putstr("\033[2JInitializing...\r\n");
+    dbg_putstr("\033[2JInitializing C app...\r\n");
+    dbg_putstr("Ready:\r\n");
     
     static uint16_t heartbeat_ctr = 0;
     while(1)
     {
+        char cmdbfr[64];
+        if(dbg_getline_nb(cmdbfr, 64) > 0)
+        {
+            GPIOPinWrite(RED_GPIO_BASE, RED_GPIO_PIN, RED_GPIO_PIN);
+            dbg_printf("\r\nEntered: %s\r\n", cmdbfr);
+        }
+        
         if(rx_led_ctr > 0)
         {
             --rx_led_ctr;

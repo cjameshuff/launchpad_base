@@ -28,6 +28,9 @@ VPATH += $(STELLARIS_ROOT)/boards/$(BOARD)/drivers
 SOURCE = src/main.c
 SOURCE += src/lm4f_reset.s
 SOURCE += src/lm4f_startup.c
+SOURCE += src/ringbuf/ringbuf.c
+SOURCE += src/uformat/uformat.c
+SOURCE += src/debug_uart.c
 
 #******************************************************************************
 
@@ -38,15 +41,19 @@ DEFINES = -Dgcc -DPART_$(PART) -DTARGET_IS_BLIZZARD_RA1
 DEFINES += -DSTACK_SIZE=256
 
 AFLAGS = -mthumb -mcpu=$(CORE) $(INCLUDES)
+
 CFLAGS = -mthumb -mcpu=$(CORE) -mfloat-abi=soft -mfpu=fpv4-sp-d16 -fsingle-precision-constant
 CFLAGS += -ffunction-sections -fdata-sections
-CFLAGS += -std=gnu99 -Wall -Wno-unused -g -Os
+CFLAGS += -Wall -Wno-unused -g -Os
 CFLAGS += $(DEFINES) $(INCLUDES)
+
+CPPFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 
 LIBS = -lm -lc -lnosys $(STELLARIS_ROOT)/driverlib/gcc-cm4f/libdriver-cm4f.a
 
 LDFLAGS = -mthumb -mcpu=$(CORE)
-LDFLAGS += -nodefaultlibs -nostartfiles
+LDFLAGS += -nodefaultlibs
+LDFLAGS += -nostartfiles
 LDFLAGS += -Wl,-Map,$(EXECNAME).map
 LDFLAGS += -Wl,--gc-sections
 LDSCRIPT = lm4f120.ld
@@ -109,11 +116,11 @@ flash: $(EXECNAME).elf
 
 obj/%.c.o: %.c
 	$(shell if [ ! -d $(addprefix obj/, $(dir $<)) ]; then mkdir -p $(addprefix obj/, $(dir $<)); fi )
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) -std=gnu99 $(CFLAGS) -c $< -o $@
 
 obj/%.cpp.o: %.cpp
 	$(shell if [ ! -d $(addprefix obj/, $(dir $<)) ]; then mkdir -p $(addprefix obj/, $(dir $<)); fi )
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CPPFLAGS) -c $< -o $@
 
 obj/%.s.o: %.s
 	$(shell if [ ! -d $(addprefix obj/, $(dir $<)) ]; then mkdir -p $(addprefix obj/, $(dir $<)); fi )
@@ -122,11 +129,11 @@ obj/%.s.o: %.s
 
 disasm/%.c.s: %.c
 	$(shell if [ ! -d $(addprefix disasm/, $(dir $<)) ]; then mkdir -p $(addprefix disasm/, $(dir $<)); fi )
-	$(CC) $(CFLAGS) -S $< -o $@
+	$(CC) -std=gnu99 $(CFLAGS) -S $< -o $@
 
 disasm/%.cpp.s: %.cpp
 	$(shell if [ ! -d $(addprefix disasm/, $(dir $<)) ]; then mkdir -p $(addprefix disasm/, $(dir $<)); fi )
-	$(CC) $(CFLAGS) -S $< -o $@
+	$(CC) $(CPPFLAGS) -S $< -o $@
 
 disasm/%.s.s: %.s
 	$(shell if [ ! -d $(addprefix disasm/, $(dir $<)) ]; then mkdir -p $(addprefix disasm/, $(dir $<)); fi )
@@ -144,7 +151,7 @@ endif
 
 deps/%.c.d: %.c
 	$(shell if [ ! -d $(addprefix deps/, $(dir $<)) ]; then mkdir -p $(addprefix deps/, $(dir $<)); fi )
-	$(CC) -M $(CFLAGS) $< > $@.$$$$; \
+	$(CC) -M -std=gnu99 $(CFLAGS) $< > $@.$$$$; \
 	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
 

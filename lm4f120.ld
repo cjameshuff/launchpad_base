@@ -1,8 +1,8 @@
 
 MEMORY
 {
-    FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 256K
-    SRAM (rwx) : ORIGIN = 0x20000000, LENGTH = 32K
+    flash (rx) : ORIGIN = 0x00000000, LENGTH = 256K
+    sram (rwx) : ORIGIN = 0x20000000, LENGTH = 32K
 }
 
 ENTRY(ResetISR)
@@ -13,18 +13,46 @@ SECTIONS
     {
         _text = .;
         KEEP(*(.isr_vector))
+        
         *(.text*)
+        
+        *(.rodata)
         *(.rodata*)
         _etext = .;
-    } > FLASH
-
-    .data : AT(ADDR(.text) + SIZEOF(.text))
+    } > flash
+    
+    .preinit_array :
+    {
+        __preinit_array_start__ = .;
+        KEEP(*(.preinit_array*))
+        __preinit_array_end__ = .;
+    } > flash
+    
+    .init_array :
+    {
+        __init_array_start__ = .;
+        KEEP(*(SORT(.init_array.*)))
+        KEEP(*(.init_array*))
+        __init_array_end__ = .;
+    } > flash
+    
+    .fini_array :
+    {
+        __fini_array_start__ = .;
+        KEEP(*(.fini_array*))
+        KEEP(*(SORT(.fini_array.*)))
+        __fini_array_end__ = .;
+    } > flash
+    
+    _data_init = .;
+    
+    .data : AT(_data_init)
     {
         _data = .;
         *(vtable)
         *(.data*)
         _edata = .;
-    } > SRAM
+    } > sram
 
     .bss :
     {
@@ -32,5 +60,5 @@ SECTIONS
         *(.bss*)
         *(COMMON)
         _ebss = .;
-    } > SRAM
+    } > sram
 }

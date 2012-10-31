@@ -331,6 +331,8 @@ static void IntDefaultHandler(void)
         {;}
 }
 
+extern void __libc_init_array(void) WEAK;
+
 extern void SystemStartup(void) WEAK;
 void SystemStartup(void)
 {
@@ -338,4 +340,7 @@ void SystemStartup(void)
     HWREG(NVIC_CPAC) = ((HWREG(NVIC_CPAC) &
                          ~(NVIC_CPAC_CP10_M | NVIC_CPAC_CP11_M)) |
                         NVIC_CPAC_CP10_FULL | NVIC_CPAC_CP11_FULL);
+    
+    if(__libc_init_array)
+        __libc_init_array();
 }

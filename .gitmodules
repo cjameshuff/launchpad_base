@@ -1,0 +1,3 @@
+[submodule "src/uformat"]
+	path = src/uformat
+	url = git@github.com:cjameshuff/uformat.git
