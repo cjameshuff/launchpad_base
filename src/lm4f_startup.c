@@ -325,14 +325,6 @@ const isr_handler_t isrVector[] =
     PWM1_3_IntHandler          // PWM 1 Fault
 };
 
-
-extern unsigned long _etext;
-extern unsigned long _data;
-extern unsigned long _edata;
-extern unsigned long _bss;
-extern unsigned long _ebss;
-
-
 static void IntDefaultHandler(void)
 {
     while(1)
