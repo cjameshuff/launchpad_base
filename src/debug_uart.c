@@ -64,7 +64,7 @@ volatile static int newlines = 0;
 //*****************************************************************************
 int dbg_putc(char ch, void * userdata)
 {
-    if(ROM_UARTSpaceAvail(UART0_BASE))
+    if(ROM_UARTSpaceAvail(UART0_BASE) && outputRB.nbytes == 0)
     {
         ROM_UARTCharPutNonBlocking(UART0_BASE, ch);
     }
@@ -80,7 +80,7 @@ int dbg_putc(char ch, void * userdata)
 
 int dbg_putc_nb(char ch, void * userdata)
 {
-    if(ROM_UARTSpaceAvail(UART0_BASE))
+    if(ROM_UARTSpaceAvail(UART0_BASE) && outputRB.nbytes == 0)
     {
         ROM_UARTCharPutNonBlocking(UART0_BASE, ch);
     }
