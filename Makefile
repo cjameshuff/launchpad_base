@@ -28,6 +28,7 @@ VPATH += $(STELLARIS_ROOT)/boards/$(BOARD)/drivers
 SOURCE = src/main.c
 SOURCE += src/lm4f_reset.s
 SOURCE += src/lm4f_startup.c
+SOURCE += src/i2c_txrx.c
 SOURCE += src/uformat/uformat.c
 SOURCE += src/debug_uart.c
 
